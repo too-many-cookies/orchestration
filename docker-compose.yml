@@ -1,0 +1,56 @@
+version: "3.9"
+services: 
+  # Images automatically built by on Docker Hub via GitHub Actions. 
+  # Latest or semantic version tags. (:latest or :major.minor.patch)
+
+  # MySQL database container
+  db:
+    image: ethanrusz/tmc-database:latest
+    hostname: db
+    ports:
+      - "3306:3306"
+    volumes:
+      - data:/var/lib/mysql
+
+  # Go container for ETL and nightly jobs
+  etl:
+    image: ethanrusz/tmc-etl:latest
+    hostname: etl
+    environment:
+      DB_USER: user
+      DB_PASS: hunter2
+      DB_HOST: db
+      DB_NAME: operational_analytics
+      LOG_PATH: syslog
+    stdin_open: true
+    depends_on:
+      - db
+
+  # API container for front end access to database
+  api:
+    image: ethanrusz/tmc-api:latest
+    hostname: api
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      USER: user
+      SQL_PASS: hunter2
+      HOST: db
+      DB_NAME: operational_analytics
+    depends_on:
+      - db
+
+  # Front end website container
+  fe:
+    image: ethanrusz/tmc-front-end:latest
+    hostname: fe
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+      - api
+
+# Keep data volume between runs
+volumes:
+  data:
