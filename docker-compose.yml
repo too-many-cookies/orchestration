@@ -9,6 +9,8 @@ services:
     hostname: db
     ports:
       - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
     volumes:
       - data:/var/lib/mysql
 
@@ -18,7 +20,7 @@ services:
     hostname: etl
     environment:
       DB_USER: user
-      DB_PASS: hunter2
+      DB_PASS: password
       DB_HOST: db
       DB_NAME: operational_analytics
       LOG_PATH: syslog
@@ -35,7 +37,7 @@ services:
     environment:
       PORT: 3001
       USER: user
-      SQL_PASS: hunter2
+      SQL_PASS: password
       HOST: db
       DB_NAME: operational_analytics
     depends_on:
